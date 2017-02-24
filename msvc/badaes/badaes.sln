@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "badaes", "badaes.vcxproj", "{F47BD250-3957-47F3-A3DB-1831C57488EB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "badaes-test", "..\badaes-test\badaes-test.vcxproj", "{4487CFEB-5436-4942-9370-0F751F41A467}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47BD250-3957-47F3-A3DB-1831C57488EB} = {F47BD250-3957-47F3-A3DB-1831C57488EB}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F47BD250-3957-47F3-A3DB-1831C57488EB}.Debug|x64.ActiveCfg = Debug|x64
+		{F47BD250-3957-47F3-A3DB-1831C57488EB}.Debug|x64.Build.0 = Debug|x64
+		{F47BD250-3957-47F3-A3DB-1831C57488EB}.Debug|x86.ActiveCfg = Debug|Win32
+		{F47BD250-3957-47F3-A3DB-1831C57488EB}.Debug|x86.Build.0 = Debug|Win32
+		{F47BD250-3957-47F3-A3DB-1831C57488EB}.Release|x64.ActiveCfg = Release|x64
+		{F47BD250-3957-47F3-A3DB-1831C57488EB}.Release|x64.Build.0 = Release|x64
+		{F47BD250-3957-47F3-A3DB-1831C57488EB}.Release|x86.ActiveCfg = Release|Win32
+		{F47BD250-3957-47F3-A3DB-1831C57488EB}.Release|x86.Build.0 = Release|Win32
+		{4487CFEB-5436-4942-9370-0F751F41A467}.Debug|x64.ActiveCfg = Debug|x64
+		{4487CFEB-5436-4942-9370-0F751F41A467}.Debug|x64.Build.0 = Debug|x64
+		{4487CFEB-5436-4942-9370-0F751F41A467}.Debug|x86.ActiveCfg = Debug|Win32
+		{4487CFEB-5436-4942-9370-0F751F41A467}.Debug|x86.Build.0 = Debug|Win32
+		{4487CFEB-5436-4942-9370-0F751F41A467}.Release|x64.ActiveCfg = Release|x64
+		{4487CFEB-5436-4942-9370-0F751F41A467}.Release|x64.Build.0 = Release|x64
+		{4487CFEB-5436-4942-9370-0F751F41A467}.Release|x86.ActiveCfg = Release|Win32
+		{4487CFEB-5436-4942-9370-0F751F41A467}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
