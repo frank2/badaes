@@ -20,6 +20,13 @@ Field::Field
    this->exponents = field.getExponents();
 }
 
+Field
+Field::AESMul
+(Field l, Field r)
+{
+   return (l * r) % Field(0x11B);
+}
+
 void
 Field::setExponents
 (uint32_t exponents)
@@ -262,6 +269,3 @@ Field::divide
 
    return std::pair<Field, Field>(result, remainder);
 }
-      
-   
-   
