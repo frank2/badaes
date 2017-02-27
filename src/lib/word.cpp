@@ -5,49 +5,49 @@ using namespace BadAES;
 Word::Word
 (std::vector<Field> fields)
 {
-   this->fields.resize(4);
+   this->fields.resize(Word::Size);
    this->setFields(fields);
 }
 
 Word::Word
-(uint32_t fields[4])
+(uint32_t fields[Word::Size])
 {
    /* so like this is kinda bad but works because
       sizeof(uint32_t) == sizeof(Field)
       soooo... sorry, lol */
    
-   this->fields.resize(4);
-   this->setFields(std::vector<Field>(fields, fields+4));
+   this->fields.resize(Word::Size);
+   this->setFields(std::vector<Field>(fields, fields+Word::Size));
 }
 
 Word::Word
 (const Word &word)
 {
-   this->fields.resize(4);
+   this->fields.resize(Word::Size);
    this->setFields(word.getFields());
 }
 
 Word::Word
 (void)
 {
-   this->fields.resize(4);
+   this->fields.resize(Word::Size);
 }
 
 void
 Word::setFields
 (std::vector<Field> fields)
 {
-   if (fields.size() != 4)
-      throw Exception("vector is not 4 fields long");
+   if (fields.size() != Word::Size)
+      throw Exception("vector is not the length of a word");
 
    this->fields = std::vector<Field>(fields.begin(), fields.end());
 }
 
 void
 Word::setFields
-(uint32_t fields[4])
+(uint32_t fields[Word::Size])
 {
-   this->setFields(std::vector<Field>(fields, fields+4));
+   this->setFields(std::vector<Field>(fields, fields+Word::Size));
 }
 
 std::vector<Field>
@@ -105,8 +105,8 @@ Word::ror
    std::vector<Field> result(this->fields.begin(), this->fields.end());
    Field movement;
 
-   movement = result[3];
-   result.erase(result.begin()+3);
+   movement = result[Word::Size-1];
+   result.erase(result.begin()+(Word::Size-1));
    result.insert(result.begin(), movement);
 
    return Word(result);
@@ -133,7 +133,7 @@ bool
 Word::operator<
 (const Word &other) const
 {
-   for (int i=3; i>=0; --i)
+   for (int i=Word::Size-1; i>=0; --i)
    {
       if (this->getField(i) == other.getField(i))
          continue;

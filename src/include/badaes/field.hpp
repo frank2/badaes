@@ -18,6 +18,7 @@ namespace BadAES
       Field(const Field &field);
 
       static Field AESMul(Field l, Field r);
+      static Field AESPow(Field x, size_t exponent);
 
       void setExponents(uint32_t exponents);
       uint32_t getExponents(void) const;

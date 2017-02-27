@@ -17,12 +17,12 @@ namespace BadAES
       const static size_t Size = 4;
       
       Word(std::vector<Field> fields);
-      Word(uint32_t fields[4]);
+      Word(uint32_t fields[Word::Size]);
       Word(const Word &word);
       Word();
 
       void setFields(std::vector<Field> fields);
-      void setFields(uint32_t fields[4]);
+      void setFields(uint32_t fields[Word::Size]);
       std::vector<Field> getFields(void) const;
 
       void setField(int index, Field field);

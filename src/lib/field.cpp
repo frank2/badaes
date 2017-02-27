@@ -27,6 +27,18 @@ Field::AESMul
    return (l * r) % Field(0x11B);
 }
 
+Field
+Field::AESPow
+(Field x, size_t exponent)
+{
+   Field result(1);
+
+   for (size_t i=0; i<exponent; ++i)
+      result = Field::AESMul(result, x);
+
+   return result;
+}
+
 void
 Field::setExponents
 (uint32_t exponents)
