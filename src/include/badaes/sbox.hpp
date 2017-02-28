@@ -12,7 +12,7 @@ namespace BadAES
    class SBox
    {
    protected:
-      const static SBox aesSBox;
+      static SBox aesSBox;
       
       std::vector<uint8_t> sBox, invSBox;
 
@@ -22,7 +22,7 @@ namespace BadAES
       SBox(const SBox &sBox);
       SBox();
 
-      static const SBox *AESSBox(void);
+      static SBox *AESSBox(void);
 
       void setSBox(std::vector<uint8_t> sBox);
       void setSBox(uint8_t sBox[256]);

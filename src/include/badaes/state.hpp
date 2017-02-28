@@ -16,12 +16,11 @@ namespace BadAES
    protected:
       size_t blockSize = 0;
       std::vector<Word> words;
-      const SBox *sBox;
 
    public:
-      State(std::vector<Word> words, const SBox *sBox);
-      State(uint8_t *stateData, size_t stateSize, const SBox *sBox);
-      State(size_t blockSize, const SBox *sBox);
+      State(std::vector<Word> words);
+      State(uint8_t *stateData, size_t stateSize);
+      State(size_t blockSize);
       State(const State &state);
       State();
 
@@ -34,35 +33,16 @@ namespace BadAES
       void setWords(uint8_t *stateData, size_t stateSize);
       std::vector<Word> getWords(void) const;
 
-      void setSBox(const SBox *sBox);
-      const SBox *getSBox(void) const;
-
-      void addState(State *state);
+      void addState(State *state); /* typically an initialization vector */
       void addRoundKey(Key *key, size_t round);
       
-      void subBytes(void);
-      void invSubBytes(void);
+      void subBytes(const SBox *sBox);
+      void invSubBytes(const SBox *sBox);
 
       void shiftRows(void);
       void invShiftRows(void);
 
       void mixColumns(void);
       void invMixColumns(void);
-   };
-
-   class AESState : public State
-   {
-   public:
-      const static size_t BlockSize = 4;
-      
-   protected:
-      size_t blockSize = AESState::BlockSize;
-      
-   public:
-      AESState(std::vector<Word> words);
-      AESState(uint8_t *stateData, size_t stateSize);
-      AESState(const AESState &state);
-      AESState(const State &state);
-      AESState();
    };
 }

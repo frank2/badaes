@@ -3,17 +3,16 @@
 using namespace BadAES;
 
 State::State
-(std::vector<Word> words, const SBox *sBox)
+(std::vector<Word> words)
 {
    if (this->blockSize == 0)
-      this->blockSize = words.size();
+      this->setBlockSize(words.size());
    
    this->setWords(words);
-   this->setSBox(sBox);
 }
 
 State::State
-(uint8_t *stateData, size_t stateSize, const SBox *sBox)
+(uint8_t *stateData, size_t stateSize)
 {
    if (this->blockSize == 0)
    {
@@ -24,14 +23,12 @@ State::State
    }
 
    this->setWords(stateData, stateSize);
-   this->setSBox(sBox);
 }
 
 State::State
-(size_t blockSize, const SBox *sBox)
+(size_t blockSize)
 {
    this->setBlockSize(blockSize);
-   this->setSBox(sBox);
 }
 
 State::State
@@ -39,12 +36,13 @@ State::State
 {
    this->setBlockSize(state.getBlockSize());
    this->setWords(state.getWords());
-   this->setSBox(state.getSBox());
 }
 
 State::State
 (void)
 {
+   if (this->blockSize != 0)
+      this->words.resize(this->blockSize);
 }
 
 Word &
@@ -94,11 +92,11 @@ State::setWords
    if (stateSize / Word::Size != this->blockSize)
       throw Exception("state size not equal to  block state size");
    
-   for (int i=0; i<this->blockSize; ++i)
+   for (size_t i=0; i<this->blockSize; ++i)
    {
       std::vector<Field> fields;
 
-      for (int j=0; j<Word::Size; ++j)
+      for (size_t j=0; j<Word::Size; ++j)
          fields.push_back(Field(stateData[i*Word::Size+j]));
 
       newWords.push_back(Word(fields));
@@ -115,27 +113,13 @@ State::getWords
 }
 
 void
-State::setSBox
-(const SBox *sBox)
-{
-   this->sBox = sBox;
-}
-
-const SBox *
-State::getSBox
-(void) const
-{
-   return this->sBox;
-}
-
-void
 State::addState
 (State *state)
 {
-   if (state->getBlockSize() != this->blockSize)
-      throw Exception("states are not equal in size");
+   if (this->blockSize != state->getBlockSize())
+      throw Exception("states not equal in size");
 
-   for (int i=0; i<this->blockSize; ++i)
+   for (size_t i=0; i<this->blockSize; ++i)
       this->words[i] = this->words[i] ^ (*state)[i];
 }
 
@@ -143,41 +127,41 @@ void
 State::addRoundKey
 (Key *key, size_t round)
 {
-   for (int i=0; i<this->blockSize; ++i)
+   for (size_t i=0; i<this->blockSize; ++i)
       this->words[i] = this->words[i] ^ (*key)[round*this->blockSize+i];
 }
 
 void
 State::subBytes
-(void)
+(const SBox *sBox)
 {
-   for (int i=0; i<this->blockSize; ++i)
-      this->words[i] = this->sBox->subWord(this->words[i]);
+   for (size_t i=0; i<this->blockSize; ++i)
+      this->words[i] = sBox->subWord(this->words[i]);
 }
 
 void
 State::invSubBytes
-(void)
+(const SBox *sBox)
 {
-   for (int i=0; i<this->blockSize; ++i)
-      this->words[i] = this->sBox->invSubWord(this->words[i]);
+   for (size_t i=0; i<this->blockSize; ++i)
+      this->words[i] = sBox->invSubWord(this->words[i]);
 }
 
 void
 State::shiftRows
 (void)
 {
-   for (int i=1; i<Word::Size; ++i)
+   for (size_t i=1; i<Word::Size; ++i)
    {
       std::vector<Field> newRow(this->blockSize);
 
-      for (int j=0; j<this->blockSize; ++j)
+      for (size_t j=0; j<this->blockSize; ++j)
       {
          int index = (i+j) % this->blockSize;
          newRow[j] = (*this)[index][i];
       }
 
-      for (int j=0; j<this->blockSize; ++j)
+      for (size_t j=0; j<this->blockSize; ++j)
          (*this)[j][i] = newRow[j];
    }
 }
@@ -186,17 +170,17 @@ void
 State::invShiftRows
 (void)
 {
-   for (int i=1; i<Word::Size; ++i)
+   for (size_t i=1; i<Word::Size; ++i)
    {
       std::vector<Field> newRow(this->blockSize);
 
-      for (int j=0; j<this->blockSize; ++j)
+      for (size_t j=0; j<this->blockSize; ++j)
       {
-         int index = (-i+j) % this->blockSize;
+         int index = (-((long)i)+j) % this->blockSize;
          newRow[j] = (*this)[index][i];
       }
 
-      for (int j=0; j<this->blockSize; ++j)
+      for (size_t j=0; j<this->blockSize; ++j)
          (*this)[j][i] = newRow[j];
    }
 }
@@ -205,7 +189,7 @@ void
 State::mixColumns
 (void)
 {
-   for (int i=0; i<this->blockSize; ++i)
+   for (size_t i=0; i<this->blockSize; ++i)
       this->words[i] = Word({0x2, 0x1, 0x1, 0x3}) * this->words[i];
 }
 
@@ -213,42 +197,6 @@ void
 State::invMixColumns
 (void)
 {
-   for (int i=0; i<this->blockSize; ++i)
+   for (size_t i=0; i<this->blockSize; ++i)
       this->words[i] = Word({0xe, 0x9, 0xd, 0xb}) * this->words[i];
 }
-
-AESState::AESState
-(std::vector<Word> words)
-   : State(words, SBox::AESSBox())
-{
-}
-
-AESState::AESState
-(uint8_t *stateData, size_t stateSize)
-   : State(stateData, stateSize, SBox::AESSBox())
-{
-}
-
-AESState::AESState
-(const AESState &state)
-   : State(state)
-{
-   this->setBlockSize(AESState::BlockSize);
-}
-
-AESState::AESState
-(const State &state)
-   : State(state)
-{
-   this->setBlockSize(AESState::BlockSize);
-}
-
-AESState::AESState
-(void)
-   : State()
-{
-   this->setBlockSize(AESState::BlockSize);
-}
-
-
-
