@@ -2,7 +2,7 @@
 
 using namespace BadAES;
 
-Cipher::Cipher
+CipherECB::CipherECB
 (Key *key, SBox *sBox, size_t blockSize)
 {
    this->setKey(key);
@@ -10,50 +10,50 @@ Cipher::Cipher
    this->setSBox(sBox);
 }
 
-Cipher::Cipher
-(const Cipher &cipher)
+CipherECB::CipherECB
+(const CipherECB &cipher)
 {
    this->setKey(cipher.getKey());
    this->setBlockSize(cipher.getBlockSize());
    this->setSBox(cipher.getSBox());
 }
 
-Cipher::Cipher
+CipherECB::CipherECB
 (void)
 {
    this->key = NULL;
 }
 
 void
-Cipher::setKey
+CipherECB::setKey
 (Key *key)
 {
    this->key = key;
 }
 
 Key *
-Cipher::getKey
+CipherECB::getKey
 (void) const
 {
    return this->key;
 }
 
 void
-Cipher::setSBox
+CipherECB::setSBox
 (SBox *sBox)
 {
    this->sBox = sBox;
 }
 
 SBox *
-Cipher::getSBox
+CipherECB::getSBox
 (void) const
 {
    return this->sBox;
 }
 
 void
-Cipher::setBlockSize
+CipherECB::setBlockSize
 (size_t blockSize)
 {
    this->blockSize = blockSize;
@@ -61,14 +61,14 @@ Cipher::setBlockSize
 }
 
 size_t
-Cipher::getBlockSize
+CipherECB::getBlockSize
 (void) const
 {
    return this->blockSize;
 }
 
 void
-Cipher::setInitVector
+CipherECB::setInitVector
 (std::vector<Word> initVector)
 {
    if (initVector.size() != this->initVector.size())
@@ -78,14 +78,14 @@ Cipher::setInitVector
 }
 
 std::vector<Word>
-Cipher::getInitVector
+CipherECB::getInitVector
 (void) const
 {
    return this->initVector;
 }
 
 void
-Cipher::generateVector
+CipherECB::generateVector
 (void)
 {
    std::vector<Word> newWords;
@@ -107,7 +107,7 @@ Cipher::generateVector
 }
 
 size_t
-Cipher::numberOfRounds
+CipherECB::numberOfRounds
 (void)
 {
    if (this->key == NULL)
@@ -117,7 +117,7 @@ Cipher::numberOfRounds
 }
 
 void
-Cipher::encryptionRound
+CipherECB::encryptionRound
 (State *state, size_t round)
 {
    if (round == this->numberOfRounds())
@@ -136,7 +136,7 @@ Cipher::encryptionRound
 }
 
 void
-Cipher::decryptionRound
+CipherECB::decryptionRound
 (State *state, size_t round)
 {
    if (round != this->numberOfRounds())
@@ -152,7 +152,7 @@ Cipher::decryptionRound
 }
 
 uint8_t *
-Cipher::encrypt
+CipherECB::encrypt
 (uint8_t *dataBuffer, size_t dataSize, size_t *outSize)
 {
    std::vector<State> states = this->getStatesFromBuffer(dataBuffer, dataSize);
@@ -165,7 +165,7 @@ Cipher::encrypt
 }
 
 uint8_t *
-Cipher::decrypt
+CipherECB::decrypt
 (uint8_t *dataBuffer, size_t dataSize, size_t *outSize)
 {
    std::vector<State> states;
@@ -183,7 +183,7 @@ Cipher::decrypt
 }
 
 std::vector<State>
-Cipher::getStatesFromBuffer
+CipherECB::getStatesFromBuffer
 (uint8_t *dataBuffer, size_t dataSize)
 {
    std::vector<State> result;
@@ -219,7 +219,7 @@ Cipher::getStatesFromBuffer
 }
 
 uint8_t *
-Cipher::dumpStatesToBuffer
+CipherECB::dumpStatesToBuffer
 (std::vector<State> states, size_t *outSize)
 {
    uint8_t *result;
@@ -236,48 +236,26 @@ Cipher::dumpStatesToBuffer
    return result;
 }
 
-AESCipherECB::AESCipherECB
-(Key *key)
-   : Cipher(key, SBox::AESSBox(), AESCipherECB::BlockSize)
+CipherCBC::CipherCBC
+(Key *key, SBox *sBox, size_t blockSize)
+   : CipherECB(key, sBox, blockSize)
 {
 }
 
-AESCipherECB::AESCipherECB
-(const AESCipherECB &cipher)
-   : Cipher(cipher)
+CipherCBC::CipherCBC
+(const CipherCBC &cipher)
+   : CipherECB(cipher)
 {
-   this->setSBox(SBox::AESSBox());
-   this->setBlockSize(AESCipherECB::BlockSize);
 }
 
-AESCipherECB::AESCipherECB
+CipherCBC::CipherCBC
 (void)
-   : Cipher()
-{
-   this->setSBox(SBox::AESSBox());
-   this->setBlockSize(AESCipherECB::BlockSize);
-}
-
-AESCipherCBC::AESCipherCBC
-(Key *key)
-   : AESCipherECB(key)
-{
-}
-
-AESCipherCBC::AESCipherCBC
-(const AESCipherCBC &cipher)
-   : AESCipherECB(cipher)
-{
-}
-
-AESCipherCBC::AESCipherCBC
-(void)
-   : AESCipherECB()
+   : CipherECB()
 {
 }
 
 uint8_t *
-AESCipherCBC::encrypt
+CipherCBC::encrypt
 (uint8_t *dataBuffer, size_t dataSize, size_t *outSize)
 {
    std::vector<State> states = this->getStatesFromBuffer(dataBuffer, dataSize);
@@ -301,7 +279,7 @@ AESCipherCBC::encrypt
 }
 
 uint8_t *
-AESCipherCBC::decrypt
+CipherCBC::decrypt
 (uint8_t *dataBuffer, size_t dataSize, size_t *outSize)
 {
    std::vector<State> states;
@@ -327,26 +305,26 @@ AESCipherCBC::decrypt
    return this->dumpStatesToBuffer(states, outSize);
 }
 
-AESCipherPCBC::AESCipherPCBC
-(Key *key)
-   : AESCipherECB(key)
+CipherPCBC::CipherPCBC
+(Key *key, SBox *sBox, size_t blockSize)
+   : CipherECB(key, sBox, blockSize)
 {
 }
 
-AESCipherPCBC::AESCipherPCBC
-(const AESCipherPCBC &cipher)
-   : AESCipherECB(cipher)
+CipherPCBC::CipherPCBC
+(const CipherPCBC &cipher)
+   : CipherECB(cipher)
 {
 }
 
-AESCipherPCBC::AESCipherPCBC
+CipherPCBC::CipherPCBC
 (void)
-   : AESCipherECB()
+   : CipherECB()
 {
 }
 
 uint8_t *
-AESCipherPCBC::encrypt
+CipherPCBC::encrypt
 (uint8_t *dataBuffer, size_t dataSize, size_t *outSize)
 {
    std::vector<State> states = this->getStatesFromBuffer(dataBuffer, dataSize);
@@ -377,7 +355,7 @@ AESCipherPCBC::encrypt
 }
 
 uint8_t *
-AESCipherPCBC::decrypt
+CipherPCBC::decrypt
 (uint8_t *dataBuffer, size_t dataSize, size_t *outSize)
 {
    std::vector<State> states;
@@ -409,160 +387,270 @@ AESCipherPCBC::decrypt
    return this->dumpStatesToBuffer(states, outSize);
 }
 
+CipherCFB::CipherCFB
+(Key *key, SBox *sBox, size_t blockSize)
+   : CipherECB(key, sBox, blockSize)
+{
+}
+
+CipherCFB::CipherCFB
+(const CipherCFB &cipher)
+   : CipherECB(cipher)
+{
+}
+
+CipherCFB::CipherCFB
+(void)
+   : CipherECB()
+{
+}
+
+/* rivest: how many layers of blockchaining r u on
+   rijindael: like, maybe cipherblock chaining propogation my dude
+   rivest: u are like little baby, watch this */
+uint8_t *
+CipherCFB::encrypt
+(uint8_t *dataBuffer, size_t dataSize, size_t *outSize)
+{
+   std::vector<State> states = this->getStatesFromBuffer(dataBuffer, dataSize);
+   std::vector<Word> rotatingVector(this->blockSize);
+
+   this->generateVector();
+
+   rotatingVector = std::vector<Word>(this->initVector.begin(), this->initVector.end());
+
+   for (size_t i=0; i<states.size(); ++i)
+   {
+      State vectorState(rotatingVector);
+      std::vector<Word> stateWords;
+      
+      for (size_t j=0; j<=this->numberOfRounds(); ++j)
+         this->encryptionRound(&vectorState, j);
+
+      for (size_t j=0; j<this->blockSize; ++j)
+         states[i][j] = states[i][j] ^ vectorState[j];
+      
+      rotatingVector = states[i].getWords();
+   }
+
+   return this->dumpStatesToBuffer(states, outSize);
+}
+
+uint8_t *
+CipherCFB::decrypt
+(uint8_t *dataBuffer, size_t dataSize, size_t *outSize)
+{
+   std::vector<State> states;
+   std::vector<Word> rotatingVector(this->blockSize);
+
+   if (dataSize % (this->blockSize * Word::Size) != 0)
+      throw Exception("buffer size must be a multiple of blocksize * word size");
+
+   states = this->getStatesFromBuffer(dataBuffer, dataSize);
+   rotatingVector = std::vector<Word>(this->initVector.begin(), this->initVector.end());
+
+   for (size_t i=0; i<states.size(); ++i)
+   {
+      State vectorState(rotatingVector);
+      std::vector<Word> stateWords;
+      
+      for (size_t j=0; j<=this->numberOfRounds(); ++j)
+         this->encryptionRound(&vectorState, j);
+
+      rotatingVector = states[i].getWords();
+
+      for (size_t j=0; j<this->blockSize; ++j)
+         states[i][j] = states[i][j] ^ vectorState[j];
+   }
+
+   return this->dumpStatesToBuffer(states, outSize);
+}
+
+CipherOFB::CipherOFB
+(Key *key, SBox *sBox, size_t blockSize)
+   : CipherECB(key, sBox, blockSize)
+{
+}
+
+CipherOFB::CipherOFB
+(const CipherOFB &cipher)
+   : CipherECB(cipher)
+{
+}
+
+CipherOFB::CipherOFB
+(void)
+   : CipherECB()
+{
+}
+
+/* rivest: how many layers of blockchaining r u on
+   rijindael: like, maybe cipherblock chaining propogation my dude
+   rivest: u are like little baby, watch this */
+uint8_t *
+CipherOFB::encrypt
+(uint8_t *dataBuffer, size_t dataSize, size_t *outSize)
+{
+   std::vector<State> states = this->getStatesFromBuffer(dataBuffer, dataSize);
+   std::vector<Word> rotatingVector(this->blockSize);
+
+   this->generateVector();
+
+   rotatingVector = std::vector<Word>(this->initVector.begin(), this->initVector.end());
+
+   for (size_t i=0; i<states.size(); ++i)
+   {
+      State vectorState(rotatingVector);
+      std::vector<Word> stateWords;
+      
+      for (size_t j=0; j<=this->numberOfRounds(); ++j)
+         this->encryptionRound(&vectorState, j);
+      
+      rotatingVector = vectorState.getWords();
+
+      for (size_t j=0; j<this->blockSize; ++j)
+         states[i][j] = states[i][j] ^ vectorState[j];
+   }
+
+   return this->dumpStatesToBuffer(states, outSize);
+}
+
+uint8_t *
+CipherOFB::decrypt
+(uint8_t *dataBuffer, size_t dataSize, size_t *outSize)
+{
+   std::vector<State> states;
+   std::vector<Word> rotatingVector(this->blockSize);
+
+   if (dataSize % (this->blockSize * Word::Size) != 0)
+      throw Exception("buffer size must be a multiple of blocksize * word size");
+
+   states = this->getStatesFromBuffer(dataBuffer, dataSize);
+   rotatingVector = std::vector<Word>(this->initVector.begin(), this->initVector.end());
+
+   for (size_t i=0; i<states.size(); ++i)
+   {
+      State vectorState(rotatingVector);
+      std::vector<Word> stateWords;
+      
+      for (size_t j=0; j<=this->numberOfRounds(); ++j)
+         this->encryptionRound(&vectorState, j);
+
+      rotatingVector = vectorState.getWords();
+
+      for (size_t j=0; j<this->blockSize; ++j)
+         states[i][j] = states[i][j] ^ vectorState[j];
+   }
+
+   return this->dumpStatesToBuffer(states, outSize);
+}
+
+AESCipherECB::AESCipherECB
+(Key *key)
+   : CipherECB(key, SBox::AESSBox(), AESCipherECB::BlockSize)
+{
+}
+
+AESCipherECB::AESCipherECB
+(const AESCipherECB &cipher)
+   : CipherECB(cipher)
+{
+   this->setSBox(SBox::AESSBox());
+   this->setBlockSize(AESCipherECB::BlockSize);
+}
+
+AESCipherECB::AESCipherECB
+(void)
+   : CipherECB()
+{
+   this->setSBox(SBox::AESSBox());
+   this->setBlockSize(AESCipherECB::BlockSize);
+}
+
+AESCipherCBC::AESCipherCBC
+(Key *key)
+   : CipherCBC(key, SBox::AESSBox(), AESCipherCBC::BlockSize)
+{
+}
+
+AESCipherCBC::AESCipherCBC
+(const AESCipherCBC &cipher)
+   : CipherCBC(cipher)
+{
+   this->setSBox(SBox::AESSBox());
+   this->setBlockSize(AESCipherCBC::BlockSize);
+}
+
+AESCipherCBC::AESCipherCBC
+(void)
+   : CipherCBC()
+{
+   this->setSBox(SBox::AESSBox());
+   this->setBlockSize(AESCipherCBC::BlockSize);
+}
+
+AESCipherPCBC::AESCipherPCBC
+(Key *key)
+   : CipherPCBC(key, SBox::AESSBox(), AESCipherPCBC::BlockSize)
+{
+}
+
+AESCipherPCBC::AESCipherPCBC
+(const AESCipherPCBC &cipher)
+   : CipherPCBC(cipher)
+{
+   this->setSBox(SBox::AESSBox());
+   this->setBlockSize(AESCipherPCBC::BlockSize);
+}
+
+AESCipherPCBC::AESCipherPCBC
+(void)
+   : CipherPCBC()
+{
+   this->setSBox(SBox::AESSBox());
+   this->setBlockSize(AESCipherPCBC::BlockSize);
+}
+
 AESCipherCFB::AESCipherCFB
 (Key *key)
-   : AESCipherECB(key)
+   : CipherCFB(key, SBox::AESSBox(), AESCipherCFB::BlockSize)
 {
 }
 
 AESCipherCFB::AESCipherCFB
 (const AESCipherCFB &cipher)
-   : AESCipherECB(cipher)
+   : CipherCFB(cipher)
 {
+   this->setSBox(SBox::AESSBox());
+   this->setBlockSize(AESCipherCFB::BlockSize);
 }
 
 AESCipherCFB::AESCipherCFB
 (void)
-   : AESCipherECB()
+   : CipherCFB()
 {
-}
-
-/* rivest: how many layers of blockchaining r u on
-   rijindael: like, maybe cipherblock chaining propogation my dude
-   rivest: u are like little baby, watch this */
-uint8_t *
-AESCipherCFB::encrypt
-(uint8_t *dataBuffer, size_t dataSize, size_t *outSize)
-{
-   std::vector<State> states = this->getStatesFromBuffer(dataBuffer, dataSize);
-   std::vector<Word> rotatingVector(this->blockSize);
-
-   this->generateVector();
-
-   rotatingVector = std::vector<Word>(this->initVector.begin(), this->initVector.end());
-
-   for (size_t i=0; i<states.size(); ++i)
-   {
-      State vectorState(rotatingVector);
-      std::vector<Word> stateWords;
-      
-      for (size_t j=0; j<=this->numberOfRounds(); ++j)
-         this->encryptionRound(&vectorState, j);
-
-      for (size_t j=0; j<this->blockSize; ++j)
-         states[i][j] = states[i][j] ^ vectorState[j];
-      
-      rotatingVector = states[i].getWords();
-   }
-
-   return this->dumpStatesToBuffer(states, outSize);
-}
-
-uint8_t *
-AESCipherCFB::decrypt
-(uint8_t *dataBuffer, size_t dataSize, size_t *outSize)
-{
-   std::vector<State> states;
-   std::vector<Word> rotatingVector(this->blockSize);
-
-   if (dataSize % (this->blockSize * Word::Size) != 0)
-      throw Exception("buffer size must be a multiple of blocksize * word size");
-
-   states = this->getStatesFromBuffer(dataBuffer, dataSize);
-   rotatingVector = std::vector<Word>(this->initVector.begin(), this->initVector.end());
-
-   for (size_t i=0; i<states.size(); ++i)
-   {
-      State vectorState(rotatingVector);
-      std::vector<Word> stateWords;
-      
-      for (size_t j=0; j<=this->numberOfRounds(); ++j)
-         this->encryptionRound(&vectorState, j);
-
-      rotatingVector = states[i].getWords();
-
-      for (size_t j=0; j<this->blockSize; ++j)
-         states[i][j] = states[i][j] ^ vectorState[j];
-   }
-
-   return this->dumpStatesToBuffer(states, outSize);
+   this->setSBox(SBox::AESSBox());
+   this->setBlockSize(AESCipherCFB::BlockSize);
 }
 
 AESCipherOFB::AESCipherOFB
 (Key *key)
-   : AESCipherECB(key)
+   : CipherOFB(key, SBox::AESSBox(), AESCipherOFB::BlockSize)
 {
 }
 
 AESCipherOFB::AESCipherOFB
 (const AESCipherOFB &cipher)
-   : AESCipherECB(cipher)
+   : CipherOFB(cipher)
 {
+   this->setSBox(SBox::AESSBox());
+   this->setBlockSize(AESCipherOFB::BlockSize);
 }
 
 AESCipherOFB::AESCipherOFB
 (void)
-   : AESCipherECB()
+   : CipherOFB()
 {
-}
-
-/* rivest: how many layers of blockchaining r u on
-   rijindael: like, maybe cipherblock chaining propogation my dude
-   rivest: u are like little baby, watch this */
-uint8_t *
-AESCipherOFB::encrypt
-(uint8_t *dataBuffer, size_t dataSize, size_t *outSize)
-{
-   std::vector<State> states = this->getStatesFromBuffer(dataBuffer, dataSize);
-   std::vector<Word> rotatingVector(this->blockSize);
-
-   this->generateVector();
-
-   rotatingVector = std::vector<Word>(this->initVector.begin(), this->initVector.end());
-
-   for (size_t i=0; i<states.size(); ++i)
-   {
-      State vectorState(rotatingVector);
-      std::vector<Word> stateWords;
-      
-      for (size_t j=0; j<=this->numberOfRounds(); ++j)
-         this->encryptionRound(&vectorState, j);
-      
-      rotatingVector = vectorState.getWords();
-
-      for (size_t j=0; j<this->blockSize; ++j)
-         states[i][j] = states[i][j] ^ vectorState[j];
-   }
-
-   return this->dumpStatesToBuffer(states, outSize);
-}
-
-uint8_t *
-AESCipherOFB::decrypt
-(uint8_t *dataBuffer, size_t dataSize, size_t *outSize)
-{
-   std::vector<State> states;
-   std::vector<Word> rotatingVector(this->blockSize);
-
-   if (dataSize % (this->blockSize * Word::Size) != 0)
-      throw Exception("buffer size must be a multiple of blocksize * word size");
-
-   states = this->getStatesFromBuffer(dataBuffer, dataSize);
-   rotatingVector = std::vector<Word>(this->initVector.begin(), this->initVector.end());
-
-   for (size_t i=0; i<states.size(); ++i)
-   {
-      State vectorState(rotatingVector);
-      std::vector<Word> stateWords;
-      
-      for (size_t j=0; j<=this->numberOfRounds(); ++j)
-         this->encryptionRound(&vectorState, j);
-
-      rotatingVector = vectorState.getWords();
-
-      for (size_t j=0; j<this->blockSize; ++j)
-         states[i][j] = states[i][j] ^ vectorState[j];
-   }
-
-   return this->dumpStatesToBuffer(states, outSize);
+   this->setSBox(SBox::AESSBox());
+   this->setBlockSize(AESCipherOFB::BlockSize);
 }
