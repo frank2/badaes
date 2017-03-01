@@ -35,4 +35,4 @@ So if you're familiar with AES, this library contains all the basic components y
   * If you're unsure of which mode to use, use AESCipher-- this defaults to AESCipherCBC.
 * Some usage notes:
   * If you're using any mode other than ECB, encryption will generate an initialization vector-- you will need this vector for when you perform decryption.
-  * *If the data you're encrypting does not land on a block boundary, the data will be padded with random data. It is your responsibility to make sure the true length of the data you encrypt is recoverable.*
+  * **If the data you're encrypting does not land on a block boundary, the data will be padded with random data. It is your responsibility to make sure the true length of the data you encrypt is recoverable.**

@@ -189,6 +189,9 @@ CipherECB::getStatesFromBuffer
    std::vector<State> result;
    size_t dataChunks;
 
+   /* GO AWAY EVE */
+   srand(time(NULL));
+
    for (dataChunks=0; dataChunks<dataSize; dataChunks+=this->blockSize*Word::Size)
    {
       std::vector<Word> newWords;
@@ -203,7 +206,7 @@ CipherECB::getStatesFromBuffer
          for (size_t j=0; j<Word::Size; ++j)
          {
             if (dataChunks+i*this->blockSize+j >= dataSize)
-               wordFields.push_back(Field(0));
+               wordFields.push_back(Field(rand() % 256));
             else
                wordFields.push_back(Field(dataBuffer[dataChunks+i*this->blockSize+j]));
          }
