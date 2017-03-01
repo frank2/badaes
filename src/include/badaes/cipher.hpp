@@ -47,25 +47,24 @@ namespace BadAES
       virtual uint8_t *dumpStatesToBuffer(std::vector<State> states, size_t *outSize);
    };
 
-   class AESCipher : public Cipher
+   /* named as such to prevent use of AESCipher being ECB
+      fuck ECB */
+   class AESCipherECB : public Cipher
    {
    public:
       const static size_t BlockSize = 4;
       
    protected:
-      size_t blockSize = AESCipher::BlockSize;
+      size_t blockSize = AESCipherECB::BlockSize;
 
    public:
-      AESCipher(Key *key);
-      AESCipher(const AESCipher &cipher);
-      AESCipher();
+      AESCipherECB(Key *key);
+      AESCipherECB(const AESCipherECB &cipher);
+      AESCipherECB();
    };
 
-   typedef AESCipher AESCipherECB;
-
-   class AESCipherCBC : public AESCipher
+   class AESCipherCBC : public AESCipherECB
    {
-   protected:
    public:
       AESCipherCBC(Key *key);
       AESCipherCBC(const AESCipherCBC &cipher);
@@ -74,4 +73,39 @@ namespace BadAES
       virtual uint8_t *encrypt(uint8_t *dataBuffer, size_t dataSize, size_t *outSize);
       virtual uint8_t *decrypt(uint8_t *dataBuffer, size_t dataSize, size_t *outSize);
    };
+
+   class AESCipherPCBC : public AESCipherECB
+   {
+   public:
+      AESCipherPCBC(Key *key);
+      AESCipherPCBC(const AESCipherPCBC &cipher);
+      AESCipherPCBC();
+      
+      virtual uint8_t *encrypt(uint8_t *dataBuffer, size_t dataSize, size_t *outSize);
+      virtual uint8_t *decrypt(uint8_t *dataBuffer, size_t dataSize, size_t *outSize);
+   };
+
+   class AESCipherCFB : public AESCipherECB
+   {
+   public:
+      AESCipherCFB(Key *key);
+      AESCipherCFB(const AESCipherCFB &cipher);
+      AESCipherCFB();
+      
+      virtual uint8_t *encrypt(uint8_t *dataBuffer, size_t dataSize, size_t *outSize);
+      virtual uint8_t *decrypt(uint8_t *dataBuffer, size_t dataSize, size_t *outSize);
+   };
+
+   class AESCipherOFB : public AESCipherECB
+   {
+   public:
+      AESCipherOFB(Key *key);
+      AESCipherOFB(const AESCipherOFB &cipher);
+      AESCipherOFB();
+      
+      virtual uint8_t *encrypt(uint8_t *dataBuffer, size_t dataSize, size_t *outSize);
+      virtual uint8_t *decrypt(uint8_t *dataBuffer, size_t dataSize, size_t *outSize);
+   };
+
+   typedef AESCipherCBC AESCipher;
 }

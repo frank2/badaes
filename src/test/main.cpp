@@ -52,18 +52,64 @@ main
                                      ,Word({0xfe, 0x48, 0x90, 0xd1})};
 
    /* encryption test */
-   uint8_t plaintext[] = {0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d
-                          ,0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34};
-   uint8_t testKeyBytes[] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6
-                             ,0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
-   AESKey128 testKey = AESKey128(testKeyBytes, sizeof(testKeyBytes));
-   uint8_t expectedCiphertext[] = {0x39, 0x25, 0x84, 0x1d, 0x02, 0xdc, 0x09, 0xfb
-                                   ,0xdc, 0x11, 0x85, 0x97, 0x19, 0x6a, 0x0b, 0x32};
    uint8_t *resultCiphertext;
    uint8_t *resultPlaintext;
    size_t resultSize;
-   AESCipherECB ecbMode = AESCipherECB(&testKey);
-   AESCipherCBC cbcMode = AESCipherCBC(&testKey);
+
+   uint8_t plaintext128[] = {0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d
+                          ,0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34};
+   uint8_t testKeyBytes128[] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6
+                                ,0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+   AESKey128 testKey128 = AESKey128(testKeyBytes128, sizeof(testKeyBytes128));
+   uint8_t expectedCiphertext128[] = {0x39, 0x25, 0x84, 0x1d, 0x02, 0xdc, 0x09, 0xfb
+                                      ,0xdc, 0x11, 0x85, 0x97, 0x19, 0x6a, 0x0b, 0x32};
+
+   uint8_t plaintext192[] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77
+                          ,0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff};
+   uint8_t testKeyBytes192[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07
+                                ,0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
+                                ,0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17};
+   AESKey192 testKey192 = AESKey192(testKeyBytes192, sizeof(testKeyBytes192));
+   uint8_t expectedCiphertext192[] = {0xdd, 0xa9, 0x7c, 0xa4, 0x86, 0x4c, 0xdf, 0xe0
+                                      ,0x6e, 0xaf, 0x70, 0xa0, 0xec, 0x0d, 0x71, 0x91};
+
+   uint8_t plaintext256[] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77
+                          ,0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff};
+   uint8_t testKeyBytes256[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07
+                                ,0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
+                                ,0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17
+                                ,0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f};
+   AESKey256 testKey256 = AESKey256(testKeyBytes256, sizeof(testKeyBytes256));
+   uint8_t expectedCiphertext256[] = {0x8e, 0xa2, 0xb7, 0xca, 0x51, 0x67, 0x45, 0xbf
+                                      ,0xea, 0xfc, 0x49, 0x90, 0x4b, 0x49, 0x60, 0x89};
+
+   uint8_t longText[] = {0xab, 0x4a, 0x39, 0xb5, 0xc8, 0x1c, 0xd9, 0x16,
+                         0x72, 0xd1, 0x80, 0xdc, 0xe8, 0xf9, 0xb3, 0xb4,
+                         0xf2, 0x3e, 0x57, 0x5f, 0xdc, 0x9b, 0x0a, 0x60,
+                         0x0d, 0x61, 0x07, 0x8b, 0x36, 0xa2, 0x97, 0x2b,
+                         0x81, 0x01, 0xb1, 0xde, 0xe6, 0x90, 0xf5, 0xc5,
+                         0x08, 0x1c, 0xc6, 0xc1, 0x7c, 0xeb, 0x2e, 0xff,
+                         0x70, 0x79, 0xb5, 0xe1, 0xd2, 0x21, 0xb4, 0x92,
+                         0x9d, 0xfa, 0xd3, 0x88, 0x3c, 0x5f, 0x08, 0xbd,
+                         0xd4, 0x1f, 0xcf, 0x6e, 0x13, 0xee, 0xf5, 0x0f,
+                         0xc0, 0x82, 0xe4, 0x54, 0xa9, 0x20, 0x2a, 0xf7,
+                         0xfe, 0x00, 0x3f, 0x8a, 0x22, 0xaa, 0xda, 0xaa,
+                         0x28, 0x9a, 0x13, 0x8e, 0x0b, 0x63, 0x61, 0xeb,
+                         0xc9, 0x53, 0x26, 0xc5, 0x3f, 0x28, 0xce, 0x7d,
+                         0x9a, 0xc4, 0x21, 0x6e, 0x5f, 0xe0, 0x48, 0xd9,
+                         0x07, 0x89, 0xe3, 0xde, 0xc9, 0x83, 0xa2, 0x94,
+                         0x9f, 0x0f, 0xed, 0x55, 0x19, 0xaa, 0x00, 0x0b};
+   uint8_t properKeyBytes[] = {0x5d, 0xfe, 0xa3, 0x37, 0x44, 0x4e, 0x25, 0x4a,
+                               0x00, 0x01, 0x4f, 0x65, 0x5d, 0x6f, 0x95, 0xe5,
+                               0x3f, 0x0e, 0xdd, 0x06, 0x13, 0x69, 0x4e, 0xd1,
+                               0xfa, 0xe6, 0x03, 0xc7, 0xfc, 0x78, 0x6a, 0x61};
+   AESKey256 properKey = AESKey256(properKeyBytes, sizeof(properKeyBytes));
+   
+   AESCipherECB ecbMode = AESCipherECB(&testKey128);
+   AESCipherCBC cbcMode = AESCipherCBC(&properKey);
+   AESCipherPCBC pcbcMode = AESCipherPCBC(&properKey);
+   AESCipherCFB cfbMode = AESCipherCFB(&properKey);
+   AESCipherOFB ofbMode = AESCipherOFB(&properKey);
 
    fx = Field(0x57);
    fy = Field(0x83);
@@ -102,17 +148,59 @@ main
    for (int i=0; i<expansion256.size(); ++i)
       assert(test256[(i+1)*AESKey256::Size] == expansion256[i]);
 
-   resultCiphertext = ecbMode.encrypt(plaintext, sizeof(plaintext), &resultSize);
-   assert(memcmp(resultCiphertext, expectedCiphertext, sizeof(expectedCiphertext)) == 0);
+   resultCiphertext = ecbMode.encrypt(plaintext128, sizeof(plaintext128), &resultSize);
+   assert(memcmp(resultCiphertext, expectedCiphertext128, sizeof(expectedCiphertext128)) == 0);
    resultPlaintext = ecbMode.decrypt(resultCiphertext, resultSize, &resultSize);
-   assert(memcmp(resultPlaintext, plaintext, sizeof(plaintext)) == 0);
+   assert(memcmp(resultPlaintext, plaintext128, sizeof(plaintext128)) == 0);
 
    delete resultCiphertext;
    delete resultPlaintext;
 
-   resultCiphertext = cbcMode.encrypt(plaintext, sizeof(plaintext), &resultSize);
+   ecbMode.setKey(&testKey192);
+   resultCiphertext = ecbMode.encrypt(plaintext192, sizeof(plaintext192), &resultSize);
+   assert(memcmp(resultCiphertext, expectedCiphertext192, sizeof(expectedCiphertext192)) == 0);
+   resultPlaintext = ecbMode.decrypt(resultCiphertext, resultSize, &resultSize);
+   assert(memcmp(resultPlaintext, plaintext192, sizeof(plaintext192)) == 0);
+
+   delete resultCiphertext;
+   delete resultPlaintext;
+
+   ecbMode.setKey(&testKey256);
+   resultCiphertext = ecbMode.encrypt(plaintext256, sizeof(plaintext256), &resultSize);
+   assert(memcmp(resultCiphertext, expectedCiphertext256, sizeof(expectedCiphertext256)) == 0);
+   resultPlaintext = ecbMode.decrypt(resultCiphertext, resultSize, &resultSize);
+   assert(memcmp(resultPlaintext, plaintext256, sizeof(plaintext256)) == 0);
+
+   delete resultCiphertext;
+   delete resultPlaintext;
+
+   resultCiphertext = cbcMode.encrypt(longText, sizeof(longText), &resultSize);
    resultPlaintext = cbcMode.decrypt(resultCiphertext, resultSize, &resultSize);
-   assert(memcmp(resultPlaintext, plaintext, sizeof(plaintext)) == 0);
+   assert(memcmp(resultPlaintext, longText, sizeof(longText)) == 0);
+
+   delete resultCiphertext;
+   delete resultPlaintext;
+
+   resultCiphertext = pcbcMode.encrypt(longText, sizeof(longText), &resultSize);
+   resultPlaintext = pcbcMode.decrypt(resultCiphertext, resultSize, &resultSize);
+   assert(memcmp(resultPlaintext, longText, sizeof(longText)) == 0);
+
+   delete resultCiphertext;
+   delete resultPlaintext;
+
+   resultCiphertext = cfbMode.encrypt(longText, sizeof(longText), &resultSize);
+   resultPlaintext = cfbMode.decrypt(resultCiphertext, resultSize, &resultSize);
+   assert(memcmp(resultPlaintext, longText, sizeof(longText)) == 0);
+
+   delete resultCiphertext;
+   delete resultPlaintext;
+
+   resultCiphertext = ofbMode.encrypt(longText, sizeof(longText), &resultSize);
+   resultPlaintext = ofbMode.decrypt(resultCiphertext, resultSize, &resultSize);
+   assert(memcmp(resultPlaintext, longText, sizeof(longText)) == 0);
+
+   delete resultCiphertext;
+   delete resultPlaintext;
 
    return 0;
 }
