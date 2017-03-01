@@ -51,6 +51,20 @@ main
                                      ,Word({0x74, 0x9c, 0x47, 0xab})
                                      ,Word({0xfe, 0x48, 0x90, 0xd1})};
 
+   /* encryption test */
+   uint8_t plaintext[] = {0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d
+                          ,0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34};
+   uint8_t testKeyBytes[] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6
+                             ,0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+   AESKey128 testKey = AESKey128(testKeyBytes, sizeof(testKeyBytes));
+   uint8_t expectedCiphertext[] = {0x39, 0x25, 0x84, 0x1d, 0x02, 0xdc, 0x09, 0xfb
+                                   ,0xdc, 0x11, 0x85, 0x97, 0x19, 0x6a, 0x0b, 0x32};
+   uint8_t *resultCiphertext;
+   uint8_t *resultPlaintext;
+   size_t resultSize;
+   AESCipherECB ecbMode = AESCipherECB(&testKey);
+   AESCipherCBC cbcMode = AESCipherCBC(&testKey);
+
    fx = Field(0x57);
    fy = Field(0x83);
 
@@ -87,6 +101,18 @@ main
 
    for (int i=0; i<expansion256.size(); ++i)
       assert(test256[(i+1)*AESKey256::Size] == expansion256[i]);
+
+   resultCiphertext = ecbMode.encrypt(plaintext, sizeof(plaintext), &resultSize);
+   assert(memcmp(resultCiphertext, expectedCiphertext, sizeof(expectedCiphertext)) == 0);
+   resultPlaintext = ecbMode.decrypt(resultCiphertext, resultSize, &resultSize);
+   assert(memcmp(resultPlaintext, plaintext, sizeof(plaintext)) == 0);
+
+   delete resultCiphertext;
+   delete resultPlaintext;
+
+   resultCiphertext = cbcMode.encrypt(plaintext, sizeof(plaintext), &resultSize);
+   resultPlaintext = cbcMode.decrypt(resultCiphertext, resultSize, &resultSize);
+   assert(memcmp(resultPlaintext, plaintext, sizeof(plaintext)) == 0);
 
    return 0;
 }

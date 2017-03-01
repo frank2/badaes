@@ -113,14 +113,14 @@ State::getWords
 }
 
 void
-State::addState
-(State *state)
+State::addVector
+(std::vector<Word> words)
 {
-   if (this->blockSize != state->getBlockSize())
-      throw Exception("states not equal in size");
+   if (this->blockSize != words.size())
+      throw Exception("vector not equal to blocksize");
 
    for (size_t i=0; i<this->blockSize; ++i)
-      this->words[i] = this->words[i] ^ (*state)[i];
+      this->words[i] = this->words[i] ^ words[i];
 }
 
 void

@@ -16,6 +16,7 @@ namespace BadAES
       Key *key;
       SBox *sBox;
       size_t blockSize;
+      std::vector<Word> initVector;
 
    public:
       Cipher(Key *key, SBox *sBox, size_t blockSize);
@@ -30,6 +31,10 @@ namespace BadAES
 
       void setBlockSize(size_t blockSize);
       size_t getBlockSize(void) const;
+
+      void setInitVector(std::vector<Word> initVector);
+      std::vector<Word> getInitVector(void) const;
+      void generateVector(void);
 
       virtual size_t numberOfRounds(void);
       virtual void encryptionRound(State *state, size_t round);
@@ -49,10 +54,24 @@ namespace BadAES
       
    protected:
       size_t blockSize = AESCipher::BlockSize;
-      
+
    public:
-      AESCipher(Key *key, size_t blockSize);
+      AESCipher(Key *key);
       AESCipher(const AESCipher &cipher);
       AESCipher();
+   };
+
+   typedef AESCipher AESCipherECB;
+
+   class AESCipherCBC : public AESCipher
+   {
+   protected:
+   public:
+      AESCipherCBC(Key *key);
+      AESCipherCBC(const AESCipherCBC &cipher);
+      AESCipherCBC();
+      
+      virtual uint8_t *encrypt(uint8_t *dataBuffer, size_t dataSize, size_t *outSize);
+      virtual uint8_t *decrypt(uint8_t *dataBuffer, size_t dataSize, size_t *outSize);
    };
 }

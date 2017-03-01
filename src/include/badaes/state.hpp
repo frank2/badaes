@@ -33,7 +33,7 @@ namespace BadAES
       void setWords(uint8_t *stateData, size_t stateSize);
       std::vector<Word> getWords(void) const;
 
-      void addState(State *state); /* typically an initialization vector */
+      void addVector(std::vector<Word> words);
       void addRoundKey(Key *key, size_t round);
       
       void subBytes(const SBox *sBox);

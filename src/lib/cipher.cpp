@@ -7,6 +7,7 @@ Cipher::Cipher
 {
    this->setKey(key);
    this->setBlockSize(blockSize);
+   this->setSBox(sBox);
 }
 
 Cipher::Cipher
@@ -14,6 +15,7 @@ Cipher::Cipher
 {
    this->setKey(cipher.getKey());
    this->setBlockSize(cipher.getBlockSize());
+   this->setSBox(cipher.getSBox());
 }
 
 Cipher::Cipher
@@ -55,6 +57,7 @@ Cipher::setBlockSize
 (size_t blockSize)
 {
    this->blockSize = blockSize;
+   this->initVector.resize(blockSize);
 }
 
 size_t
@@ -62,6 +65,45 @@ Cipher::getBlockSize
 (void) const
 {
    return this->blockSize;
+}
+
+void
+Cipher::setInitVector
+(std::vector<Word> initVector)
+{
+   if (initVector.size() != this->initVector.size())
+      throw Exception("vector sizes are not equal");
+
+   this->initVector = std::vector<Word>(initVector.begin(), initVector.end());
+}
+
+std::vector<Word>
+Cipher::getInitVector
+(void) const
+{
+   return this->initVector;
+}
+
+void
+Cipher::generateVector
+(void)
+{
+   std::vector<Word> newWords;
+
+   /* EVE GO AWAY U R NOT WELCOME IN MY SHITTY RNG */
+   srand(time(NULL));
+   
+   for (int i=0; i<this->blockSize; ++i)
+   {
+      std::vector<Field> newFields;
+
+      for (int j=0; j<Word::Size; ++j)
+         newFields.push_back(Field(rand() % 256));
+
+      newWords.push_back(Word(newFields));
+   }
+
+   this->initVector = std::vector<Word>(newWords.begin(), newWords.end());
 }
 
 size_t
@@ -97,7 +139,7 @@ void
 Cipher::decryptionRound
 (State *state, size_t round)
 {
-   if (round != 0)
+   if (round != this->numberOfRounds())
    {
       state->invShiftRows();
       state->invSubBytes(this->sBox);
@@ -190,8 +232,8 @@ Cipher::dumpStatesToBuffer
 }
 
 AESCipher::AESCipher
-(Key *key, size_t blockSize)
-   : Cipher(key, SBox::AESSBox(), blockSize)
+(Key *key)
+   : Cipher(key, SBox::AESSBox(), AESCipher::BlockSize)
 {
 }
 
@@ -199,10 +241,79 @@ AESCipher::AESCipher
 (const AESCipher &cipher)
    : Cipher(cipher)
 {
+   this->setSBox(SBox::AESSBox());
+   this->setBlockSize(AESCipher::BlockSize);
 }
 
 AESCipher::AESCipher
 (void)
    : Cipher()
 {
+   this->setSBox(SBox::AESSBox());
+   this->setBlockSize(AESCipher::BlockSize);
+}
+
+AESCipherCBC::AESCipherCBC
+(Key *key)
+   : AESCipher(key)
+{
+}
+
+AESCipherCBC::AESCipherCBC
+(const AESCipherCBC &cipher)
+   : AESCipher(cipher)
+{
+}
+
+AESCipherCBC::AESCipherCBC
+(void)
+   : AESCipher()
+{
+}
+
+uint8_t *
+AESCipherCBC::encrypt
+(uint8_t *dataBuffer, size_t dataSize, size_t *outSize)
+{
+   std::vector<State> states = this->getStatesFromBuffer(dataBuffer, dataSize);
+   std::vector<Word> rotatingVector(this->blockSize);
+
+   this->generateVector();
+
+   rotatingVector = std::vector<Word>(this->initVector.begin(), this->initVector.end());
+
+   for (size_t i=0; i<states.size(); ++i)
+   {
+      states[i].addVector(rotatingVector);
+      
+      for (size_t j=0; j<=this->numberOfRounds(); ++j)
+         this->encryptionRound(&states[i], j);
+
+      rotatingVector = states[i].getWords();
+   }
+
+   return this->dumpStatesToBuffer(states, outSize);
+}
+
+uint8_t *
+AESCipherCBC::decrypt
+(uint8_t *dataBuffer, size_t dataSize, size_t *outSize)
+{
+   std::vector<State> states = this->getStatesFromBuffer(dataBuffer, dataSize);
+   std::vector<Word> previousVector(this->blockSize), nextVector(this->blockSize);
+
+   previousVector = std::vector<Word>(this->initVector.begin(), this->initVector.end());
+
+   for (size_t i=0; i<states.size(); ++i)
+   {
+      nextVector = states[i].getWords();
+      
+      for (int j=this->numberOfRounds(); j>=0; --j)
+         this->decryptionRound(&states[i], j);
+
+      states[i].addVector(previousVector);
+      previousVector = nextVector;
+   }
+
+   return this->dumpStatesToBuffer(states, outSize);
 }
